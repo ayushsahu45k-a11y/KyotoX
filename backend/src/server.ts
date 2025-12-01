@@ -1,21 +1,29 @@
+imp// src/server.ts
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import chatRoute from "./routes/chat";
-
-dotenv.config();
+import helmet from "helmet";
+import chatRoutes from "./routes/chatRoutes"; // your routes
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// Basic middleware
+app.use(helmet());
+app.use(express.json({ limit: "1mb" }));
 
-// Routes
-app.use("/api/chat", chatRoute);
+// Allow CORS - restrict this in production to your frontend URL
+const FRONTEND_URL = process.env.FRONTEND_URL || "*";
+app.use(cors({
+  origin: FRONTEND_URL,
+}));
 
-// Convert PORT (string) → number
-const PORT = Number(process.env.PORT) || 7000;
+// Mount routes
+app.use("/api/chat", chatRoutes);
 
-app.listen(PORT, "0.0.0.0", () => {
+// Health check
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+// Render provides PORT
+const PORT = Number(process.env.PORT || 7000);
+app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);
 });
