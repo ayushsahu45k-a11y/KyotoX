@@ -1,28 +1,26 @@
-imp// src/server.ts
+
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import chatRoutes from "./routes/chatRoutes"; // your routes
+import dotenv from "dotenv";
+import path from "path";
+import chatRoute from "./routes/chat";
+
+// Load .env from backend folder
+dotenv.config({
+  path: path.resolve(__dirname, "../.env")
+});
 
 const app = express();
 
-// Basic middleware
-app.use(helmet());
-app.use(express.json({ limit: "1mb" }));
+app.use(cors());
+app.use(express.json());
 
-// Allow CORS - restrict this in production to your frontend URL
-const FRONTEND_URL = process.env.FRONTEND_URL || "*";
-app.use(cors({
-  origin: FRONTEND_URL,
-}));
+app.use("/api/chat", chatRoute);
 
-// Mount routes
-app.use("/api/chat", chatRoutes);
-
-// Health check
-app.get("/health", (req, res) => res.json({ status: "ok" }));
-
-// Render provides PORT
 const PORT = Number(process.env.PORT) || 7000;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Backend running on port ${PORT}`));
 
+console.log("🔍 Loaded GEMINI_API_KEY =", process.env.GEMINI_API_KEY);
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
+});
