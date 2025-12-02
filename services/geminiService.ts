@@ -2,7 +2,7 @@ export async function sendMessageToGemini(message: string) {
   const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   try {
-    const res = await fetch(`${API_URL}/api/chat`, {
+    const res = await fetch(`${API_URL}/chat`, {  // <-- Changed from /api/chat
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
