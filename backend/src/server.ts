@@ -23,7 +23,6 @@ app.use("/api/chat", chatRoutes);
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 // Render provides PORT
-const PORT = Number(process.env.PORT || 7000);
-app.listen(PORT, () => {
-  console.log(`🚀 Backend running on port ${PORT}`);
-});
+const PORT = Number(process.env.PORT) || 7000;
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Backend running on port ${PORT}`));
+
