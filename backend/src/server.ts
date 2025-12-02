@@ -10,11 +10,15 @@ dotenv.config({
 
 const app = express();
 
-// ✅ Allow frontend on Vercel to access backend
 app.use(cors({
-  origin: "https://kyoto-x-20-gwugeojcv-ayush-sahus-projects-10ca795a.vercel.app",
+  origin: [
+    "http://localhost:5173",
+    "https://kyotox-frontend.vercel.app",  // <<<<--
+    /\.vercel\.app$/    // allow ANY vercel deployment
+  ],
   credentials: true
 }));
+
 
 app.use(express.json());
 
