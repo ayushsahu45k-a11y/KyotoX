@@ -9,15 +9,22 @@ dotenv.config({
 });
 
 const app = express();
-app.use(cors());
+
+// ✅ Allow frontend on Vercel to access backend
+app.use(cors({
+  origin: "https://kyoto-x-20-gwugeojcv-ayush-sahus-projects-10ca795a.vercel.app",
+  credentials: true
+}));
+
 app.use(express.json());
 
-// ADD THIS HEALTH ROUTE
+// Health check route
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // Chat route
+// The frontend must call: `${VITE_BACKEND_URL}/api/chat`
 app.use("/api/chat", chatRoute);
 
 const PORT = Number(process.env.PORT) || 7000;
