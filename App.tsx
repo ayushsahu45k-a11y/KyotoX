@@ -7,7 +7,7 @@ import { LoginScreen } from './components/LoginScreen';
 import { Sidebar } from './components/Sidebar';
 import { SettingsModal } from './components/SettingsModal';
 import { v4 as uuidv4 } from 'uuid';
-import * as Storage from './services/storageService';
+import * as Storage from './src/services/storageService';
 
 // Icons
 const SendIcon = () => (
