@@ -50,4 +50,5 @@ export const APP_DATASET: KnowledgeBase = {
 };
 
 export const INITIAL_MESSAGE = `Greetings! I am the AI interface for the ${APP_DATASET.productName}. 
-I can provide status reports, troubleshoot ship systems, or just chat about the universe. How can I assist you today?`;
+I can provide status reports, troubleshoot ship systems, or just chat about the universe. 
+How can I assist you today?`;
