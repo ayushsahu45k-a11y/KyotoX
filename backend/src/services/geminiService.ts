@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Ensure GEMINI_API_KEY is set
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.AIzaSyDX2jtMbd_bx6u1BHGORPuDi4pFWQ_rYXE;
 
 if (!API_KEY) {
   throw new Error(
