@@ -43,7 +43,7 @@ app.get("/health", (req, res) => {
 // Chat route
 app.use("/api/chat", chatRoute);
 
-const PORT = Number(process.env.PORT) || 7000;
+const PORT = Number(process.env.PORT) || 10000;
 
 console.log("🔍 Loaded GEMINI_API_KEY =", !!process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
 console.log("🔍 FRONTEND_ORIGIN =", process.env.FRONTEND_ORIGIN || "default (not set)");
