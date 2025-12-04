@@ -1,74 +1,28 @@
-// import { User, ChatSession, Theme } from '../types';
 
-// const STORAGE_KEYS = {
-//   USER: 'app_user',
-//   HISTORY: 'app_chat_history',
-//   THEME: 'app_theme',
-// };
+import express from "express";
+import { sendMessageToGemini } from "../services/geminiService";
 
-// export const saveUser = (user: User) => {
-//   localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-// };
-
-// export const getUser = (): User | null => {
-//   const data = localStorage.getItem(STORAGE_KEYS.USER);
-//   return data ? JSON.parse(data) : null;
-// };
-
-// export const saveHistory = (history: ChatSession[]) => {
-//   // Convert dates back to strings for storage
-//   localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
-// };
-
-// export const getHistory = (): ChatSession[] => {
-//   const data = localStorage.getItem(STORAGE_KEYS.HISTORY);
-//   if (!data) return [];
-//   const parsed = JSON.parse(data);
-//   // Revive dates
-//   return parsed.map((session: any) => ({
-//     ...session,
-//     date: new Date(session.date),
-//     messages: session.messages.map((m: any) => ({
-//       ...m,
-//       timestamp: new Date(m.timestamp)
-//     }))
-//   }));
-// };
-
-// export const saveTheme = (theme: Theme) => {
-//   localStorage.setItem(STORAGE_KEYS.THEME, theme);
-// };
-
-// export const getTheme = (): Theme => {
-//   return (localStorage.getItem(STORAGE_KEYS.THEME) as Theme) || 'default';
-// };
-
-// export const clearSession = () => {
-//     localStorage.removeItem(STORAGE_KEYS.USER);
-//     localStorage.removeItem(STORAGE_KEYS.HISTORY);
-// }
-
-// src/routes/chatRoutes.ts
-import { Router } from "express";
-
-const router = Router();
+const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
     const { message } = req.body;
-    if (!message) return res.status(400).json({ error: "message required" });
 
-    // Example: forward to Gemini service or your Gemini wrapper function
-    // const resp = await callGeminiAPI(process.env.GEMINI_API_KEY, message);
-    // return res.json(resp);
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Message required (string)" });
+    }
 
-    // For now, echo back (replace with real call)
-    return res.json({ reply: `You said: ${message}` });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "internal error" });
+    console.info("CHAT: received message:", message.slice(0, 300));
+
+    const reply = await sendMessageToGemini(message);
+
+    console.info("CHAT: reply (truncated):", (reply || "").slice(0, 500));
+
+    return res.json({ reply });
+  } catch (error: any) {
+    console.error("CHAT ROUTE ERROR =", error);
+    return res.status(500).json({ error: "Gemini or server error" });
   }
 });
 
 export default router;
-
