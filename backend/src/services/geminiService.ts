@@ -1,25 +1,24 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const apiKey = process.env.GEMINI_API_KEY;
 
-export async function sendMessageToGemini(userMessage) {
+if (!apiKey) {
+  throw new Error("❌ GEMINI_API_KEY is not set in environment");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
+
+export async function sendMessageToGemini(userMessage: string) {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest"
+      model: "gemini-2.0-flash"
     });
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: userMessage }]
-        }
-      ]
-    });
+    const result = await model.generateContent(userMessage);
 
     return result.response.text();
   } catch (err) {
-    console.error("Gemini API ERROR", err);
+    console.error("Gemini API ERROR:", err);
     throw new Error("GEMINI_FAILED");
   }
 }
