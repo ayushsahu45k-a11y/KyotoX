@@ -9,9 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 export async function sendMessageToGemini(message: string) {
   try {
     // Correct model for new SDK
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
-    });
+    cconst model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Correct request format
     const result = await model.generateContent({
