@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { APP_DATASET } from './constants';
-import { initializeChat, sendMessageToGemini } from './services/geminiService';
+import { initializeChat, sendMessageToGemini } from './src/services/geminiService';
 import { Message, Role, User, Theme, ChatSession } from './types';
 import { ChatMessage } from './components/ChatMessage';
 import { LoginScreen } from './components/LoginScreen';
