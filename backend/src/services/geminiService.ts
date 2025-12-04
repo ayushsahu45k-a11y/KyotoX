@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
 const API_KEY = process.env.GEMINI_API_KEY;
 
 if (!API_KEY) {
@@ -10,7 +9,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 export async function sendMessageToGemini(message: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({model: "gemini-1.5-flash-latest"});
     const result = await model.generateContent(message);
 
     if (result && typeof (result as any).response?.text === "function") {
