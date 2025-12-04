@@ -27,3 +27,8 @@
     "noEmit": true
   }
 }
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}
