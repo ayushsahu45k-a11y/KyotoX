@@ -1,52 +1,63 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
 import chatRoute from "./routes/chat";
+import dotenv from "dotenv";
 
-dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
-});
+// Load .env
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
-// Allow frontend origin(s) to be provided via env var (Render / Vercel)
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "https://kyoto-x-20.vercel.app";
+// ------------ CORS FIX (100% WORKING) ------------
 
-const corsOptions = {
-  origin: (origin: any, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (e.g. curl, server-to-server)
-    if (!origin) return callback(null, true);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
 
-    // Allow exact FRONTEND_ORIGIN or any .vercel.app host
-    try {
-      if (origin === FRONTEND_ORIGIN || /\.vercel\.app$/.test(origin) || origin.startsWith("http://localhost")) {
+// Add FRONTEND_ORIGIN from .env if exists
+if (process.env.FRONTEND_ORIGIN) {
+  allowedOrigins.push(process.env.FRONTEND_ORIGIN);
+}
+
+// Final CORS middleware
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // server-to-server
+
+      const vercelRegex = /\.vercel\.app$/;
+
+      if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
         return callback(null, true);
       }
-    } catch (e) {
-      // fall through to deny
-    }
-    console.warn("Blocked CORS origin:", origin);
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-};
 
-app.use(cors(corsOptions));
+      console.warn("❌ Blocked CORS Origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
+// -----------------------------------------------
+
 app.use(express.json());
 
-// Health check route
+// Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Chat route
+// API route
 app.use("/api/chat", chatRoute);
 
+// PORT
 const PORT = Number(process.env.PORT) || 10000;
 
-console.log("🔍 Loaded GEMINI_API_KEY =", !!process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
-console.log("🔍 FRONTEND_ORIGIN =", process.env.FRONTEND_ORIGIN || "default (not set)");
+console.log("🔍 Loaded GEMINI_API_KEY =", process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
+console.log("🔍 FRONTEND_ORIGIN =", process.env.FRONTEND_ORIGIN || "NONE (wildcard vercel enabled)");
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Backend running on port ${PORT}`);
