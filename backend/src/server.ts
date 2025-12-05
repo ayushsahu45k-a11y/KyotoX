@@ -1,64 +1,45 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import path from "path";
-import chatRoute from "./routes/chat";
+import helmet from "helmet";
 import dotenv from "dotenv";
+import chatRouter from "./routes/chat.js";
+import morgan from "morgan";
 
-// Load .env
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
 const app = express();
+app.use(helmet());
+app.use(express.json({ limit: "1mb" }));
+app.use(morgan("combined"));
 
-// ------------ CORS FIX (100% WORKING) ------------
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "*";
+const corsOptions: cors.CorsOptions = {
+  origin: FRONTEND_ORIGIN === "*" ? true : FRONTEND_ORIGIN,
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
+app.use(cors(corsOptions));
 
-// Add FRONTEND_ORIGIN from .env if exists
-if (process.env.FRONTEND_ORIGIN) {
-  allowedOrigins.push(process.env.FRONTEND_ORIGIN);
-}
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-// Final CORS middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // server-to-server
+app.use("/chat", chatRouter);
 
-      const vercelRegex = /\.vercel\.app$/;
-
-      if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
-        return callback(null, true);
-      }
-
-      console.warn("❌ Blocked CORS Origin:", origin);
-      return callback(new Error("Not allowed by CORS"));
+// Generic error handler
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("Unhandled error:", err?.stack ?? err);
+  const code = err?.statusCode || 500;
+  res.status(code).json({
+    error: {
+      message: err?.message ?? "Internal server error",
+      code,
     },
-    credentials: true,
-  })
-);
-
-// -----------------------------------------------
-
-app.use(express.json());
-
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
+  });
 });
 
-// API route
-app.use("/api/chat", chatRoute);
-
-// PORT
-const PORT = Number(process.env.PORT) || 10000;
-
-console.log("🔍 Loaded GEMINI_API_KEY =", process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
-console.log("🔍 FRONTEND_ORIGIN =", process.env.FRONTEND_ORIGIN || "NONE (wildcard vercel enabled)");
-
-app.listen(PORT, "0.0.0.0", () => {
+const PORT = Number(process.env.PORT || 10000);
+app.listen(PORT, () => {
+  console.log("🔍 Loaded GEMINI_API_KEY =", process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
+  console.log("🔍 FRONTEND_ORIGIN =", process.env.FRONTEND_ORIGIN || FRONTEND_ORIGIN);
   console.log(`🚀 Backend running on port ${PORT}`);
 });
