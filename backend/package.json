@@ -13,7 +13,7 @@
     "helmet": "^6.0.0",
     "dotenv": "^16.0.0",
     "morgan": "^1.10.0",
-    "@google/generative-ai": "^0.28.0"
+    "@google/generative-ai": "^0.17.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
@@ -21,6 +21,6 @@
     "nodemon": "^3.1.0"
   },
   "engines": {
-    "node": "18.x"
-  }
+  "node": "20.x"
+}
 }
