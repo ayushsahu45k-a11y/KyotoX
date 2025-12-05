@@ -1,6 +1,5 @@
-
 export async function sendMessageToGemini(message: string) {
-  const API_URL = import.meta.env.VITE_API_URL; // 🔥 Correct variable name
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
 
   if (!API_URL) {
     console.error("❌ VITE_API_URL is missing in environment variables.");
@@ -8,7 +7,7 @@ export async function sendMessageToGemini(message: string) {
   }
 
   try {
-    const res = await fetch(`${API_URL}/api/chat`, {
+    const res = await fetch(`${API_URL}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -16,15 +15,14 @@ export async function sendMessageToGemini(message: string) {
       body: JSON.stringify({ message }),
     });
 
-    // If backend is down or crashed
     if (!res.ok) {
-      console.error("Backend responded with error:", res.status, res.statusText);
-      return `⚠️ Backend error (${res.status}). Check server logs.`;
+      const errorText = await res.text().catch(() => "Unknown error");
+      console.error("Backend error:", res.status, errorText);
+      return `⚠️ Backend error (${res.status}). Check backend logs.`;
     }
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
 
-    // Validate backend response shape
     if (!data || typeof data.reply !== "string") {
       console.error("Invalid backend response:", data);
       return "⚠️ Invalid response from backend. Check API.";
@@ -34,11 +32,10 @@ export async function sendMessageToGemini(message: string) {
 
   } catch (err) {
     console.error("Frontend fetch error:", err);
-    return "⚠️ Cannot reach server. Check backend URL or backend logs.";
+    return "⚠️ Cannot reach backend. Check API_URL or backend logs.";
   }
 }
 
 export function initializeChat() {
-  // Some apps initialize model here; yours doesn't need it
   return true;
 }
