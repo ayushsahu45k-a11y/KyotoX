@@ -1,26 +1,23 @@
-import express from "express";
-import { sendMessageToGemini } from "../services/geminiService";
+import { Router } from "express";
+import sendMessageToGemini from "../services/geminiService.js";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   try {
-    const { message } = req.body;
+    const { message, sessionId } = req.body;
+    if (!message) return res.status(400).json({ error: "message is required" });
 
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message required (string)" });
-    }
-
-    console.info("CHAT: received message:", message.slice(0, 300));
-
-    const reply = await sendMessageToGemini(message);
-
-    console.info("CHAT: reply (truncated):", (reply || "").slice(0, 500));
+    const reply = await sendMessageToGemini(message, { sessionId });
 
     return res.json({ reply });
-  } catch (error: any) {
-    console.error("CHAT ROUTE ERROR =", error);
-    return res.status(500).json({ error: "Gemini or server error" });
+  } catch (err: any) {
+    // Map known internal errors to client friendly statuses
+    if (err === "GEMINI_FAILED") {
+      console.error("CHAT ROUTE ERROR = GEMINI_FAILED");
+      return res.status(502).json({ error: "Upstream model error (Gemini). Check logs." });
+    }
+    next(err);
   }
 });
 
