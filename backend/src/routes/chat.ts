@@ -1,5 +1,5 @@
 import { Router } from "express";
-import sendMessageToGemini from "../services/geminiService.js";
+import { sendMessageToGemini } from "../services/geminiService.js";
 
 const router = Router();
 
